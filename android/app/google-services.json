@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "658468262790",
+    "project_id": "medispenser-c25fb",
+    "storage_bucket": "medispenser-c25fb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658468262790:android:d93167728c9ed0417c9207",
+        "android_client_info": {
+          "package_name": "com.example.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7I3A5dBwiH0-q6FBqHGof23pXWolNoJU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

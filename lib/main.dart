@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -40,6 +44,19 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChecked = false;
 
   void _confirmButtonPressed() {
+    final machineID = machineIDController.text;
+    final prescriptionName = prescriptionNameController.text;
+    final intakeInterval = intakeIntervalController.text;
+    final intakeTimes = intakeTimesController.text;
+
+    // Store the data in Firebase
+    FirebaseFirestore.instance.collection('collection-name').add({
+      'machineID': machineID,
+      'prescriptionName': prescriptionName,
+      'intakeInterval': intakeInterval,
+      'intakeTimes': intakeTimes,
+    });
+
     setState(() {
       machineIDController.clear();
       prescriptionNameController.clear();
