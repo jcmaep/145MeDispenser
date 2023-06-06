@@ -18,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChecked = false;
 
   void _confirmButtonPressed() {
+    if (isChecked == true){
     final machineID = machineIDController.text;
     final prescriptionName = prescriptionNameController.text;
     final intakeInterval = intakeIntervalController.text;
@@ -37,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
       intakeIntervalController.clear();
       intakeTimesController.clear();
       isChecked = false;
-    });
+    });}
   }
 
   @override
