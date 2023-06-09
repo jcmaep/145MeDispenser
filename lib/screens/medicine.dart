@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -17,28 +18,42 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController intakeTimesController = TextEditingController();
   bool isChecked = false;
 
-  void _confirmButtonPressed() {
-    if (isChecked == true){
-    final machineID = machineIDController.text;
-    final prescriptionName = prescriptionNameController.text;
-    final intakeInterval = intakeIntervalController.text;
-    final intakeTimes = intakeTimesController.text;
-
-    // Store the data in Firebase
-    FirebaseFirestore.instance.collection('collection-name').add({
-      'machineID': machineID,
-      'prescriptionName': prescriptionName,
-      'intakeInterval': intakeInterval,
-      'intakeTimes': intakeTimes,
+  postdata() async {
+    var response =
+        await http.post(Uri.parse("https://10.13.8.101:3000"), body: {
+      'machineID': machineIDController.text,
+      'prescriptionName': prescriptionNameController.text,
+      'intakeInterval': intakeIntervalController.text,
+      'intakeTimes': intakeTimesController.text
     });
+    print(response.body);
+  }
 
-    setState(() {
-      machineIDController.clear();
-      prescriptionNameController.clear();
-      intakeIntervalController.clear();
-      intakeTimesController.clear();
-      isChecked = false;
-    });}
+  void _confirmButtonPressed() {
+    if (isChecked == true) {
+      final machineID = machineIDController.text;
+      final prescriptionName = prescriptionNameController.text;
+      final intakeInterval = intakeIntervalController.text;
+      final intakeTimes = intakeTimesController.text;
+
+      // Store the data in Firebase
+      FirebaseFirestore.instance.collection('collection-name').add({
+        'machineID': machineID,
+        'prescriptionName': prescriptionName,
+        'intakeInterval': intakeInterval,
+        'intakeTimes': intakeTimes,
+      });
+
+      postdata();
+
+      setState(() {
+        machineIDController.clear();
+        prescriptionNameController.clear();
+        intakeIntervalController.clear();
+        intakeTimesController.clear();
+        isChecked = false;
+      });
+    }
   }
 
   @override

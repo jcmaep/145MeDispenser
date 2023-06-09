@@ -26,6 +26,7 @@ app.post('/', (req, res) => {
     res.send('Data Received: ' + JSON.stringify(data));
 })
 
-app.listen(3000, () => {
+//insert actual ip when deployed
+app.listen(3000, '10.13.8.101', () => {
 	console.log('running...');
 });
