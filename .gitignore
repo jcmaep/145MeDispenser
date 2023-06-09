@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 firebase-win.exe
+
+# Perform npm install when new node modules are added
+server/node_modules/
+server/medispenser-c25fb-firebase-adminsdk-yzb5c-d256f125fc.json

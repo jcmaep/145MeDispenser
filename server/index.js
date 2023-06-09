@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser')
 
+// initialize firebase admin sdk
+const admin = require('firebase-admin');
+const serviceAccount = require('./medispenser-c25fb-firebase-adminsdk-yzb5c-d256f125fc.json');
 
-
-
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
 
 const app = express();
 
