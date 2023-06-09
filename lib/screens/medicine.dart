@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
@@ -19,14 +20,23 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChecked = false;
 
   postdata() async {
-    var response =
-        await http.post(Uri.parse("https://10.13.8.101:3000"), body: {
+    final headers = {'Content-Type': 'application/json'};
+    final body = {
       'machineID': machineIDController.text,
       'prescriptionName': prescriptionNameController.text,
       'intakeInterval': intakeIntervalController.text,
       'intakeTimes': intakeTimesController.text
-    });
-    print(response.body);
+    };
+    String jsonBody = json.encode(body);
+    final encoding = Encoding.getByName('utf-8');
+
+    var response = await http.post(
+      Uri.parse("https://10.13.8.101:3000"),
+      headers: headers,
+      body: jsonBody,
+      encoding: encoding,
+    );
+    print(response.statusCode);
   }
 
   void _confirmButtonPressed() {
