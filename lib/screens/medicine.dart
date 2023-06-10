@@ -20,7 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChecked = false;
 
   postdata() async {
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', };
     final body = {
       'machineID': machineIDController.text,
       'prescriptionName': prescriptionNameController.text,
