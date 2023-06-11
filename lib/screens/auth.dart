@@ -1,5 +1,3 @@
-// import 'package:flutter/material.dart';
-
 import 'package:app/screens/medicine.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
@@ -41,19 +39,33 @@ class Authenticate extends StatelessWidget {
         '/sign-in': (context) {
           return SignInScreen(
             providers: providers,
+            showAuthActionSwitch: false,
             actions: [
               AuthStateChangeAction<SignedIn>((context, state) {
                 Navigator.pushReplacementNamed(context, '/profile');
               }),
             ],
             headerBuilder: (context, constraints, shrinkOffset) {
-              return Container(
-                alignment: Alignment.center,
-                height: 200,
-                width: 200,
+              return Padding(
+                padding: const EdgeInsets.only(top: 10.0),
                 child: AspectRatio(
                   aspectRatio: 1,
                   child: Image.asset('assets/logo.png'),
+                ),
+              );
+            },
+            subtitleBuilder: (context, action) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text('Welcome to MeDispenser, please sign in!'),
+              );
+            },
+            footerBuilder: (context, action) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
+                  'By signing in, you agree to our terms and conditions.',
+                  style: TextStyle(color: Colors.grey),
                 ),
               );
             },
@@ -67,6 +79,9 @@ class Authenticate extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/sign-in');
               }),
             ],
+            appBar: AppBar(
+              title: const Text('Profile'),
+            ),
             children: [
               ElevatedButton(
                 style: buttonStyle,
