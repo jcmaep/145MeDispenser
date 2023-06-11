@@ -35,40 +35,66 @@ class Authenticate extends StatelessWidget {
     return MaterialApp(
       initialRoute:
           FirebaseAuth.instance.currentUser == null ? '/sign-in' : '/profile',
+      debugShowCheckedModeBanner: false,
       routes: {
         '/sign-in': (context) {
-          return SignInScreen(
-            providers: providers,
-            showAuthActionSwitch: false,
-            actions: [
-              AuthStateChangeAction<SignedIn>((context, state) {
-                Navigator.pushReplacementNamed(context, '/profile');
-              }),
-            ],
-            headerBuilder: (context, constraints, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.asset('assets/logo.png'),
+          return Scaffold(
+            body: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/logo.png',
+                          height: 200,
+                        ),
+                        const Text(
+                          'MeDispenser',
+                          style: TextStyle(
+                            fontSize: 42,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'OpenSans',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              );
-            },
-            subtitleBuilder: (context, action) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text('Welcome to MeDispenser, please sign in!'),
-              );
-            },
-            footerBuilder: (context, action) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'By signing in, you agree to our terms and conditions.',
-                  style: TextStyle(color: Colors.grey),
+                Expanded(
+                  flex: 4,
+                  child: SignInScreen(
+                    providers: providers,
+                    showAuthActionSwitch: false,
+                    actions: [
+                      AuthStateChangeAction<SignedIn>((context, state) {
+                        Navigator.pushReplacementNamed(context, '/profile');
+                      }),
+                    ],
+                    subtitleBuilder: (context, action) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text('Welcome to MeDispenser, please sign in!'),
+                      );
+                    },
+                    footerBuilder: (context, action) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'By signing in, you agree to our terms and conditions.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
           );
         },
         '/profile': (context) {
@@ -97,10 +123,8 @@ class Authenticate extends StatelessWidget {
               ),
             ],
           );
-          // return const MyHomePage(title: 'Medicine Information');
         },
       },
-      debugShowCheckedModeBanner: false,
     );
   }
 }
