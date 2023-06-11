@@ -19,24 +19,25 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController intakeTimesController = TextEditingController();
   bool isChecked = false;
 
-  postdata() async {
-    final headers = {'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', };
-    final body = {
-      'machineID': machineIDController.text,
-      'prescriptionName': prescriptionNameController.text,
-      'intakeInterval': intakeIntervalController.text,
-      'intakeTimes': intakeTimesController.text
-    };
-    String jsonBody = json.encode(body);
-    final encoding = Encoding.getByName('utf-8');
+  Future<void> postdata() async {
+
+    //String jsonBody = json.encode(body);
+    //final encoding = Encoding.getByName('utf-8');
 
     var response = await http.post(
-      Uri.parse("https://10.13.8.101:3000"),
-      headers: headers,
-      body: jsonBody,
-      encoding: encoding,
+      Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
+      //Uri.parse("http://10.60.224.245:3000/"),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'machineID': machineIDController.text,
+        'prescriptionName': prescriptionNameController.text,
+        'intakeInterval': intakeIntervalController.text,
+        'intakeTimes': intakeTimesController.text
+      }),
+      //encoding: encoding,
     );
     print(response.statusCode);
+    print(response.body);
   }
 
   void _confirmButtonPressed() {

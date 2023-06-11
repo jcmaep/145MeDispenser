@@ -22,11 +22,12 @@ app.get('/', (req, res) => {
 });
 
 app.post('/', (req, res) => {
+    //TODO: data should be pushed sa database
     let data = req.body;
     res.send('Data Received: ' + JSON.stringify(data));
 })
 
 //insert actual ip when deployed
-app.listen(3000, '10.13.8.101', () => {
+app.listen(3000, '10.60.224.245', () => {
 	console.log('running...');
 });
