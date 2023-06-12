@@ -31,11 +31,17 @@ app.get("/", async (req, res) => {
 		// Generate HTML output
 		let htmlOutput = "<html><body><h1>Prescriptions</h1>";
 		htmlOutput += "<ul>";
-        
 		prescriptions.forEach((prescription) => {
-			htmlOutput += `<li>${prescription.machineID} - ${prescription.prescriptionName}</li>`;
+			htmlOutput += `
+            <li>
+                <ul>
+                    <li>${prescription.machineID}</li>
+                    <li>${prescription.prescriptionName}</li>
+                    <li>${prescription.intakeInterval}</li>
+                    <li>${prescription.intakeTimes}</li>
+                </ul>
+            </li>`;
 		});
-
 		htmlOutput += "</ul></body></html>";
 
 		// Send HTML response
