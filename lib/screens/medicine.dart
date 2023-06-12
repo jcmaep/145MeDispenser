@@ -1,7 +1,7 @@
-import 'dart:convert';
+// import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -20,26 +20,24 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChecked = false;
 
   Future<void> postdata() async {
-
     //String jsonBody = json.encode(body);
     //final encoding = Encoding.getByName('utf-8');
-    var ts = Date.now()
+    // var ts = Date.now();
 
-    var response = await http.post(
-      Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
-      //Uri.parse("http://10.60.224.245:3000/"),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'machineID': machineIDController.text,
-        'prescriptionName': prescriptionNameController.text,
-        'intakeInterval': intakeIntervalController.text,
-        'intakeTimes': intakeTimesController.text,
-
-      }),
-      //encoding: encoding,
-    );
-    print(response.statusCode);
-    print(response.body);
+    // var response = await http.post(
+    //   Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
+    //   //Uri.parse("http://10.60.224.245:3000/"),
+    //   headers: {'Content-Type': 'application/json'},
+    //   body: json.encode({
+    //     'machineID': machineIDController.text,
+    //     'prescriptionName': prescriptionNameController.text,
+    //     'intakeInterval': intakeIntervalController.text,
+    //     'intakeTimes': intakeTimesController.text,
+    //   }),
+    //   //encoding: encoding,
+    // );
+    // print(response.statusCode);
+    // print(response.body);
   }
 
   void _confirmButtonPressed() {
@@ -50,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final intakeTimes = intakeTimesController.text;
 
       // Store the data in Firebase
-      FirebaseFirestore.instance.collection('collection-name').add({
+      FirebaseFirestore.instance.collection('medicine-prescription').add({
         'machineID': machineID,
         'prescriptionName': prescriptionName,
         'intakeInterval': intakeInterval,
