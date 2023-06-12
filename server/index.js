@@ -1,33 +1,52 @@
-const express = require('express');
-const bodyParser = require('body-parser')
+const express = require("express");
+// const bodyParser = require('body-parser')
 
 // initialize firebase admin sdk
-const admin = require('firebase-admin');
-const serviceAccount = require('./medispenser-c25fb-firebase-adminsdk-yzb5c-d256f125fc.json');
+const admin = require("firebase-admin");
+const serviceAccount = require("./medispenser-c25fb-firebase-adminsdk-yzb5c-d256f125fc.json");
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+	credential: admin.credential.cert(serviceAccount),
+	databaseURL: "https://medispenser-c25fb.firebaseio.com",
 });
+
+const db = admin.firestore();
 
 const app = express();
+const port = 3000;
 
-let messages = {message: 'Hello World'};
+// Endpoint to fetch prescription data
+app.get("/", async (req, res) => {
+	try {
+		// Retrieve prescription data from Firestore
+		const snapshot = await db.collection("medicine-prescription").get();
+		const prescriptions = [];
 
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+		// Extract relevant data from snapshot
+		snapshot.forEach((doc) => {
+			const prescription = doc.data();
+			prescriptions.push(prescription);
+		});
 
-app.get('/', (req, res) => {
-	res.send('hello world')
+		// Generate HTML output
+		let htmlOutput = "<html><body><h1>Prescriptions</h1>";
+		htmlOutput += "<ul>";
+        
+		prescriptions.forEach((prescription) => {
+			htmlOutput += `<li>${prescription.machineID} - ${prescription.prescriptionName}</li>`;
+		});
+
+		htmlOutput += "</ul></body></html>";
+
+		// Send HTML response
+		res.send(htmlOutput);
+	} catch (error) {
+		console.error("Error fetching prescriptions:", error);
+		res.status(500).send("Error fetching prescriptions");
+	}
 });
 
-app.post('/', (req, res) => {
-    //TODO: data should be pushed sa database
-    let data = req.body;
-    res.send('Data Received: ' + JSON.stringify(data));
-})
-
-//insert actual ip when deployed
-app.listen(3000, '10.60.224.245', () => {
-	console.log('running...');
+// Start the server
+app.listen(port, () => {
+	console.log(`Server is listening on port ${port}`);
 });
