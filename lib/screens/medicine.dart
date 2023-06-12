@@ -23,6 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     //String jsonBody = json.encode(body);
     //final encoding = Encoding.getByName('utf-8');
+    var ts = Date.now()
 
     var response = await http.post(
       Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
@@ -32,7 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
         'machineID': machineIDController.text,
         'prescriptionName': prescriptionNameController.text,
         'intakeInterval': intakeIntervalController.text,
-        'intakeTimes': intakeTimesController.text
+        'intakeTimes': intakeTimesController.text,
+
       }),
       //encoding: encoding,
     );
