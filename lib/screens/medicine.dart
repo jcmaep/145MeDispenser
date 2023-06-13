@@ -1,7 +1,5 @@
-// import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:http/http.dart' as http;
 
 class MedicineInput extends StatefulWidget {
   const MedicineInput({super.key});
@@ -25,20 +23,23 @@ class _MedicineInputState extends State<MedicineInput> {
   void _confirmButtonPressed() {
     if (isChecked == true) {
       final patientName = patientNameController.text;
-      final machineID = machineIDController.text;
+      int intMachineID = int.parse(machineIDController.text);
       final medicineName = medicineNameController.text;
-      final startTime = startTimeController.text;
-      final intakeInterval = intakeIntervalController.text;
-      final intakeTimes = intakeTimesController.text;
+      int intIntakeInterval = int.parse(intakeIntervalController.text);
+      int intIntakeTimes = int.parse(intakeTimesController.text);
+      DateTime now = DateTime.now();
+      DateTime time = DateTime(now.year, now.month, now.day, selectedTime!.hour,
+          selectedTime!.minute);
+      Timestamp timestamp = Timestamp.fromDate(time);
 
       // Store the data in Firebase
       FirebaseFirestore.instance.collection('medicine-prescription').add({
         'patientName': patientName,
-        'machineID': machineID,
+        'machineID': intMachineID,
         'medicineName': medicineName,
-        'startTime': startTime,
-        'intakeInterval': intakeInterval,
-        'intakeTimes': intakeTimes,
+        'startTime': timestamp,
+        'intakeInterval': intIntakeInterval,
+        'intakeTimes': intIntakeTimes,
       });
 
       setState(() {

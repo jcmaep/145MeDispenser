@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home Screen'),
+        title: const Text('Home'),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _usersStream,
@@ -36,8 +36,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Map<String, dynamic> data =
                       document.data()! as Map<String, dynamic>;
                   return ListTile(
-                    title: Text(data['prescriptionName']),
-                    subtitle: Text(data['machineID']),
+                    title: Text(data['patientName']),
+                    subtitle: Text(data['machineID'].toString()),
                   );
                 })
                 .toList()
