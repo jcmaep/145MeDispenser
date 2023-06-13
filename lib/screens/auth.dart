@@ -1,4 +1,5 @@
 import 'package:app/screens/about.dart';
+import 'package:app/screens/home.dart';
 import 'package:app/screens/medicine.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
@@ -116,7 +117,19 @@ class Authenticate extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const MyHomePage(),
+                      builder: (context) => const HomeScreen(),
+                    ),
+                  );
+                },
+                child: const Text('View Prescriptions'),
+              ),
+              ElevatedButton(
+                style: buttonStyle,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MedicineInput(),
                     ),
                   );
                 },

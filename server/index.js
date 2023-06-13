@@ -13,7 +13,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Endpoint to fetch prescription data
 app.get("/", async (req, res) => {
@@ -53,6 +53,6 @@ app.get("/", async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-	console.log(`Server is listening on port ${port}`);
+app.listen(PORT, () => {
+	console.log(`Server is listening on port ${PORT}`);
 });

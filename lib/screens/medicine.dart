@@ -3,14 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:http/http.dart' as http;
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MedicineInput extends StatefulWidget {
+  const MedicineInput({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MedicineInput> createState() => _MedicineInputState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MedicineInputState extends State<MedicineInput> {
+  final TextEditingController patientNameController = TextEditingController();
   final TextEditingController machineIDController = TextEditingController();
   final TextEditingController prescriptionNameController =
       TextEditingController();
@@ -19,29 +20,9 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController intakeTimesController = TextEditingController();
   bool isChecked = false;
 
-  Future<void> postdata() async {
-    //String jsonBody = json.encode(body);
-    //final encoding = Encoding.getByName('utf-8');
-    // var ts = Date.now();
-
-    // var response = await http.post(
-    //   Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
-    //   //Uri.parse("http://10.60.224.245:3000/"),
-    //   headers: {'Content-Type': 'application/json'},
-    //   body: json.encode({
-    //     'machineID': machineIDController.text,
-    //     'prescriptionName': prescriptionNameController.text,
-    //     'intakeInterval': intakeIntervalController.text,
-    //     'intakeTimes': intakeTimesController.text,
-    //   }),
-    //   //encoding: encoding,
-    // );
-    // print(response.statusCode);
-    // print(response.body);
-  }
-
   void _confirmButtonPressed() {
     if (isChecked == true) {
+      final patientName = patientNameController.text;
       final machineID = machineIDController.text;
       final prescriptionName = prescriptionNameController.text;
       final intakeInterval = intakeIntervalController.text;
@@ -49,15 +30,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
       // Store the data in Firebase
       FirebaseFirestore.instance.collection('medicine-prescription').add({
+        'patientName': patientName,
         'machineID': machineID,
         'prescriptionName': prescriptionName,
         'intakeInterval': intakeInterval,
         'intakeTimes': intakeTimes,
       });
 
-      postdata();
-
       setState(() {
+        patientNameController.clear();
         machineIDController.clear();
         prescriptionNameController.clear();
         intakeIntervalController.clear();
