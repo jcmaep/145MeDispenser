@@ -32,6 +32,7 @@ app.get("/", async (req, res) => {
 		// Extract relevant data from snapshot
 		snapshot.forEach((doc) => {
 			const prescription = doc.data();
+            prescription.id = doc.id;
 			prescriptions.push(prescription);
 		});
 
@@ -51,7 +52,7 @@ app.get("/", async (req, res) => {
 			htmlOutput += `
             <li>
                 <ul>
-                    <li>${prescription}</li>
+                    <li>${prescription.id}</li>
                     <li>${start_timestampp_date}</li>
                     <li>${prescription.prescriptionName}</li>
                     <li>${prescription.intakeInterval}</li>

@@ -15,5 +15,8 @@
     "firebase-admin": "^11.9.0",
     "http": "^0.0.1-security",
     "serialport": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
   }
 }
