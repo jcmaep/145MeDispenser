@@ -36,7 +36,7 @@ app.get("/", async (req, res) => {
             <li>
                 <ul>
                     <li>${prescription.machineID}</li>
-                    <li>${prescription.prescriptionName}</li>
+                    <li>${prescription.medicineName}</li>
                     <li>${prescription.intakeInterval}</li>
                     <li>${prescription.intakeTimes}</li>
                 </ul>

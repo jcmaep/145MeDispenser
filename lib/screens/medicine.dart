@@ -13,18 +13,21 @@ class MedicineInput extends StatefulWidget {
 class _MedicineInputState extends State<MedicineInput> {
   final TextEditingController patientNameController = TextEditingController();
   final TextEditingController machineIDController = TextEditingController();
-  final TextEditingController prescriptionNameController =
-      TextEditingController();
+  final TextEditingController medicineNameController = TextEditingController();
+  final TextEditingController startTimeController = TextEditingController();
   final TextEditingController intakeIntervalController =
       TextEditingController();
   final TextEditingController intakeTimesController = TextEditingController();
   bool isChecked = false;
 
+  TimeOfDay? selectedTime;
+
   void _confirmButtonPressed() {
     if (isChecked == true) {
       final patientName = patientNameController.text;
       final machineID = machineIDController.text;
-      final prescriptionName = prescriptionNameController.text;
+      final medicineName = medicineNameController.text;
+      final startTime = startTimeController.text;
       final intakeInterval = intakeIntervalController.text;
       final intakeTimes = intakeTimesController.text;
 
@@ -32,7 +35,8 @@ class _MedicineInputState extends State<MedicineInput> {
       FirebaseFirestore.instance.collection('medicine-prescription').add({
         'patientName': patientName,
         'machineID': machineID,
-        'prescriptionName': prescriptionName,
+        'medicineName': medicineName,
+        'startTime': startTime,
         'intakeInterval': intakeInterval,
         'intakeTimes': intakeTimes,
       });
@@ -40,7 +44,8 @@ class _MedicineInputState extends State<MedicineInput> {
       setState(() {
         patientNameController.clear();
         machineIDController.clear();
-        prescriptionNameController.clear();
+        medicineNameController.clear();
+        startTimeController.clear();
         intakeIntervalController.clear();
         intakeTimesController.clear();
         isChecked = false;
@@ -66,6 +71,16 @@ class _MedicineInputState extends State<MedicineInput> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextFormField(
+                controller: patientNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Patient Name',
+                  filled: true,
+                  fillColor: Color(0xFFD9D9D9),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                keyboardType: TextInputType.number,
                 controller: machineIDController,
                 decoration: const InputDecoration(
                   labelText: 'Machine ID',
@@ -75,15 +90,55 @@ class _MedicineInputState extends State<MedicineInput> {
               ),
               const SizedBox(height: 16.0),
               TextFormField(
-                controller: prescriptionNameController,
+                controller: medicineNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Prescription Name',
+                  labelText: 'Medicine Name',
                   filled: true,
                   fillColor: Color(0xFFD9D9D9),
                 ),
               ),
               const SizedBox(height: 16.0),
               TextFormField(
+                controller: startTimeController,
+                decoration: const InputDecoration(
+                  labelText: 'Start Time',
+                  filled: true,
+                  fillColor: Color(0xFFD9D9D9),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  final TimeOfDay? time = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime ?? TimeOfDay.now(),
+                    initialEntryMode: TimePickerEntryMode.dial,
+                    builder: (BuildContext context, Widget? child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
+                        ),
+                        child: Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: MediaQuery(
+                            data: MediaQuery.of(context).copyWith(
+                              alwaysUse24HourFormat: false,
+                            ),
+                            child: child!,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                  if (time != null) {
+                    setState(() {
+                      selectedTime = time;
+                      startTimeController.text = time.format(context);
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                keyboardType: TextInputType.number,
                 controller: intakeIntervalController,
                 decoration: const InputDecoration(
                   labelText: 'Intake Interval',
@@ -93,6 +148,7 @@ class _MedicineInputState extends State<MedicineInput> {
               ),
               const SizedBox(height: 16.0),
               TextFormField(
+                keyboardType: TextInputType.number,
                 controller: intakeTimesController,
                 decoration: const InputDecoration(
                   labelText: 'Intake Times',
