@@ -1,5 +1,7 @@
 const express = require("express");
-// const bodyParser = require('body-parser')
+//const bodyParser = require('body-parser')
+const SerialPort = require('serialport');
+
 
 // initialize firebase admin sdk
 const admin = require("firebase-admin");
@@ -14,6 +16,8 @@ const db = admin.firestore();
 
 const app = express();
 const port = 3000;
+app.use(express.json());
+
 
 // Endpoint to fetch prescription data
 app.get("/", async (req, res) => {
@@ -52,7 +56,38 @@ app.get("/", async (req, res) => {
 	}
 });
 
+app.post('/test', (req, res) => {
+    console.log('Received POST request from Arduino: from ' + req.ip[7] + ' with body: ' + JSON.stringify(req.body));
+    console.log(req.body);
+    let json = req.body;
+    console.log(json);
+    // Get the decimal IP address
+    //let machineID = json.MachineID;
+    let json_response = {
+        command: 'dispense',
+        message: req.ip.slice(5)
+    };
+
+    console.log(json_response);
+	console.log(req.ip);
+    //console.log(`Input received: ${machineID}`);
+    res.send(req.body);
+});
+
 // Start the server
 app.listen(port, () => {
 	console.log(`Server is listening on port ${port}`);
 });
+
+
+function decimalToOctet(decimalIP) {
+    const octetArr = [];
+  
+    for (let i = 0; i < 4; i++) {
+      const octet = decimalIP & 255; // Extract the last 8 bits
+      octetArr.unshift(octet.toString()); // Prepend octet to the array
+      decimalIP = decimalIP >> 8; // Shift right by 8 bits
+    }
+  
+    return octetArr.join(".");
+}
