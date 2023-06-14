@@ -1,5 +1,5 @@
 const express = require("express");
-const SerialPort = require('serialport');
+const SerialPort = require("serialport");
 // const arduinoUrl = 'http://192.168.5.2/arduino';
 
 // initialize firebase admin sdk
@@ -95,11 +95,10 @@ app.post("/test", (req, res) => {
 	// Get the decimal IP address
 	//let machineID = json.MachineID;
 	const json_response = "dispense";
-;
 
 	console.log(json_response);
 	//console.log(`Input received: ${machineID}`);
-	res.send(req.body);
+	res.send(json_response);
 });
 
 // Loop to check database data, then send dispensing signal to Arduino if timestamp is == current time
@@ -114,50 +113,57 @@ setInterval(async () => {
 				const prescription = doc.data();
 				const nextIntakeTimeMillis = prescription.nextIntakeTime.toMillis();
 
-				if (currentTime >= nextIntakeTimeMillis) {
-					if (prescription.intakeTimes === 0) {
-						// continue;
-					} else {
-						const lastIntakeTime = prescription.nextIntakeTime.toMillis();
-						console.log("Last intake: " + Date(lastIntakeTime));
-						console.log("Interval: " + prescription.intakeInterval * 3600000);
-						const newDateMillis =
-							lastIntakeTime + prescription.intakeInterval * 3600000;
-						// console.log("Next intake: " + newDateMillis);
-						// console.log(prescription.nextIntakeTime);
+				if (
+					currentTime >= nextIntakeTimeMillis &&
+					prescription.intakeTimes > 0
+				) {
+					const lastIntakeTime = prescription.nextIntakeTime.toMillis();
+					console.log("Last intake: " + new Date(lastIntakeTime));
+					console.log("Interval: " + prescription.intakeInterval * 3600000);
+					const newDateMillis =
+						lastIntakeTime + prescription.intakeInterval * 3600000;
 
-						changeTime(admin.firestore.Timestamp.fromMillis(newDateMillis), doc.id);
-						// Arduino dispenses - START
-						// Assuming arduino sensed a hand
-						const arduinoCommand = {
-							command: "dispense",
-							machineID: prescription.machineID,
-						};
-						// Convert the arduinoCommand object to JSON string
-						const commandString = JSON.stringify(arduinoCommand);
+					changeTime(
+						admin.firestore.Timestamp.fromMillis(newDateMillis),
+						doc.id
+					);
 
-						// Send the command to the Arduino using SerialPort
-						const port = new SerialPort("COM1", { baudRate: 9600 }); // Hardcorded, replace "COM1" with the appropriate port name
-						port.write(commandString, (err) => {
-							if (err) {
-								console.error("Error writing to serial port:", err);
-							} else {
-								console.log("Dispensing signal sent to Arduino.");
-							}
+					// Arduino dispenses - START
+					// Assuming Arduino sensed a hand
+					const arduinoCommand = {
+						command: "dispense",
+						machineID: prescription.machineID,
+					};
+					// Convert the arduinoCommand object to JSON string
+					const commandString = JSON.stringify(arduinoCommand);
 
-							// Close the serial port
-							port.close();
-						});
-						// Arduino dispenses - END
+					// Send the command to the Arduino using SerialPort
+					const port = new SerialPort("COM1", { baudRate: 9600 }); // Replace "COM1" with the appropriate port name
+					port.write(commandString, (err) => {
+						if (err) {
+							console.error("Error writing to serial port:", err);
+						} else {
+							console.log("Dispensing signal sent to Arduino.");
+						}
 
-						console.log("LastIntakeTime " + lastIntakeTime + "\n" + "Interval Time: " + prescription.intakeInterval * 3600000);
-						console.log("NextIntakeTime " + nextIntakeTimeMillis);
+						// Close the serial port
+						port.close();
+					});
+					// Arduino dispenses - END
 
-						// Update IntakeTimes
-						console.log("Previous intake times: " + prescription.intakeTimes);
-						const newIntakeTimes = prescription.intakeTimes - 1;
-						await decrementIntakeTimes(newIntakeTimes, doc.id);
-					}
+					console.log(
+						"LastIntakeTime " +
+							lastIntakeTime +
+							"\n" +
+							"Interval Time: " +
+							prescription.intakeInterval * 3600000
+					);
+					console.log("NextIntakeTime " + nextIntakeTimeMillis);
+
+					// Update IntakeTimes
+					console.log("Previous intake times: " + prescription.intakeTimes);
+					const newIntakeTimes = prescription.intakeTimes - 1;
+					await decrementIntakeTimes(newIntakeTimes, doc.id);
 				}
 			} catch (error) {
 				console.error("Error processing prescription:", error);
@@ -167,6 +173,7 @@ setInterval(async () => {
 		console.error("Error fetching prescriptions:", error);
 	}
 }, 1000);
+
 // Timestamp mechanism, push notification if missed
 
 function decimalToOctet(decimalIP) {
