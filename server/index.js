@@ -14,7 +14,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 1000;
 var ipDict = {};
 
 app.use(express.json());
@@ -127,31 +127,31 @@ setInterval(async () => {
 				// console.log(prescription.nextIntakeTime);
 
 				changeTime(admin.firestore.Timestamp.fromMillis(newDateMillis), doc.id);
-				// // Arduino dispenses - START
-				// // Assuming arduino sensed a hand
-				// const arduinoCommand = {
-				// 	command: "dispense",
-				// 	machineID: prescription.machineID,
-				// };
-				// // Convert the arduinoCommand object to JSON string
-				// const commandString = JSON.stringify(arduinoCommand);
+				// Arduino dispenses - START
+				// Assuming arduino sensed a hand
+				const arduinoCommand = {
+					command: "dispense",
+					machineID: prescription.machineID,
+				};
+				// Convert the arduinoCommand object to JSON string
+				const commandString = JSON.stringify(arduinoCommand);
 
-				// // Send the command to the Arduino using SerialPort
-				// const port = new SerialPort("COM1", { baudRate: 9600 }); // Replace "COM1" with the appropriate port name
-				// port.write(commandString, (err) => {
-				// 	if (err) {
-				// 		console.error("Error writing to serial port:", err);
-				// 	} else {
-				// 		console.log("Dispensing signal sent to Arduino.");
-				// 	}
+				// Send the command to the Arduino using SerialPort
+				const port = new SerialPort("COM1", { baudRate: 9600 }); // Replace "COM1" with the appropriate port name
+				port.write(commandString, (err) => {
+					if (err) {
+						console.error("Error writing to serial port:", err);
+					} else {
+						console.log("Dispensing signal sent to Arduino.");
+					}
 
-				// 	// Close the serial port
-				// 	port.close();
-				// });
-				// // Arduino dispenses - END
+					// Close the serial port
+					port.close();
+				});
+				// Arduino dispenses - END
 
-				// console.log("LastIntakeTime " + lastIntakeTime + "\n" + "Interval Time: " + prescription.intakeInterval * 3600000)
-				// console.log("NextIntakeTime " + nextIntakesss);
+				console.log("LastIntakeTime " + lastIntakeTime + "\n" + "Interval Time: " + prescription.intakeInterval * 3600000)
+				console.log("NextIntakeTime " + nextIntakesss);
 
 				// Update IntakeTimes
 				console.log("Previous intake times: " + prescription.intakeTimes);
