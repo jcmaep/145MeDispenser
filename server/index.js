@@ -15,6 +15,7 @@ const db = admin.firestore();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+var ipDict = {};
 
 app.use(express.json());
 
@@ -51,7 +52,6 @@ app.get("/", async (req, res) => {
 
 		// Send HTML response
 		res.send(htmlOutput);
-		const currentTime = Date.now();
 	} catch (error) {
 		console.error("Error fetching prescriptions:", error);
 		res.status(500).send("Error fetching prescriptions");
@@ -63,56 +63,69 @@ app.listen(PORT, () => {
 	console.log(`Server is listening on port ${PORT}`);
 });
 
+app.post("/ipaddr", (req, res) => {
+	const xForwardedFor = req.headers["x-forwarded-for"];
+	const ipAddr = xForwardedFor
+		? xForwardedFor.split(",")[0].trim()
+		: req.socket.remoteAddress;
+
+	const machineID = req.body.machineID;
+
+	console.log("IP address of machine: " + ipAddr);
+	console.log("Machine ID: " + machineID);
+
+	ipDict[machineID] = ipAddr;
+	console.log(ipDict);
+});
+
 // Post request from Arduino, when pills are successfully dispensed.
 app.post("/test", (req, res) => {
+	const xForwardedFor = req.headers["x-forwarded-for"];
+	const ipAddr = xForwardedFor
+		? xForwardedFor.split(",")[0].trim()
+		: req.socket.remoteAddress;
 	console.log(
 		"Received POST request from Arduino: from " +
-			req.ip[7] +
+			ipAddr +
 			" with body: " +
 			JSON.stringify(req.body)
 	);
-	console.log(req.body);
-	let json = req.body;
+	const json = req.body;
 	console.log(json);
 	// Get the decimal IP address
 	//let machineID = json.MachineID;
-	let json_response = {
+	const json_response = {
 		command: "dispense",
-		message: req.ip.slice(5),
+		message: ipAddr,
 	};
 
 	console.log(json_response);
-	console.log(req.ip);
 	//console.log(`Input received: ${machineID}`);
 	res.send(req.body);
 });
-
-//Update database
 
 // Loop to check database data, then send dispensing signal to Arduino if timestamp is == current time
 setInterval(async () => {
 	//Get updated database
 	const snapshot = await db.collection("medicine-prescription").get();
 	const currentTime = Date.now();
-	console.log(currentTime);
 
 	snapshot.forEach(async (doc) => {
 		const prescription = doc.data();
 		const nextIntakeTimeMillis = prescription.nextIntakeTime.toMillis();
 
 		if (currentTime >= nextIntakeTimeMillis) {
-			
 			if (prescription.intakeTimes === 0) {
 				// continue;
 			} else {
 				const lastIntakeTime = prescription.nextIntakeTime.toMillis();
-				// console.log("Last intake: " + nextIntakeTimeMillis);
-				// console.log("Interval: " + prescription.intakeInterval * 3600000);
+				console.log("Last intake: " + Date(lastIntakeTime));
+				console.log("Interval: " + prescription.intakeInterval * 3600000);
 				const newDateMillis =
 					lastIntakeTime + prescription.intakeInterval * 3600000;
 				// console.log("Next intake: " + newDateMillis);
 				// console.log(prescription.nextIntakeTime);
-	
+
 				changeTime(admin.firestore.Timestamp.fromMillis(newDateMillis), doc.id);
 				// // Arduino dispenses - START
 				// // Assuming arduino sensed a hand
@@ -141,7 +154,9 @@ setInterval(async () => {
 				// console.log("NextIntakeTime " + nextIntakesss);
 
 				// Update IntakeTimes
-				prescription.intakeTimes;
+				console.log("Previous intake times: " + prescription.intakeTimes);
+				newIntakeTimes = prescription.intakeTimes - 1;
+				decrementIntakeTimes(newIntakeTimes, doc.id);
 			}
 		}
 	});
@@ -171,9 +186,38 @@ function changeTime(timestamp, uniqueId) {
 	docRef
 		.update({ nextIntakeTime: timestamp })
 		.then(() => {
-			console.log("Timestamp field updated successfully");
+			console.log(
+				"Timestamp field updated successfully to " +
+					new Date(timestamp.toMillis()) +
+					""
+			);
 		})
 		.catch((error) => {
 			console.error("Error updating timestamp field:", error);
 		});
 }
+
+function decrementIntakeTimes(number, uniqueId) {
+	const db = admin.firestore();
+
+	// Get a reference to the document using the unique ID
+	const docRef = db.collection("medicine-prescription").doc(uniqueId);
+
+	// Update the timestamp field with the provided timestamp value
+	docRef
+		.update({ intakeTimes: number })
+		.then(() => {
+			console.log(
+				"Intake Times field updated successfully to " + number + " times"
+			);
+		})
+		.catch((error) => {
+			console.error("Error updating timestamp field:", error);
+		});
+}
+
+// Powershell command
+// $headers = @{ "Content-Type" = "application/json" }
+// $body = @{ "machineID" = "123456" } | ConvertTo-Json
+
+// Invoke-RestMethod -Method POST -Uri "https://medispenser.onrender.com/ipaddr" -Headers $headers -Body $body
