@@ -12,7 +12,8 @@ class _MedicineInputState extends State<MedicineInput> {
   final TextEditingController patientNameController = TextEditingController();
   final TextEditingController machineIDController = TextEditingController();
   final TextEditingController medicineNameController = TextEditingController();
-  final TextEditingController startTimeController = TextEditingController();
+  final TextEditingController nextIntakeTimeController =
+      TextEditingController();
   final TextEditingController intakeIntervalController =
       TextEditingController();
   final TextEditingController intakeTimesController = TextEditingController();
@@ -37,7 +38,7 @@ class _MedicineInputState extends State<MedicineInput> {
         'patientName': patientName,
         'machineID': intMachineID,
         'medicineName': medicineName,
-        'startTime': timestamp,
+        'nextIntakeTime': timestamp,
         'intakeInterval': intIntakeInterval,
         'intakeTimes': intIntakeTimes,
       });
@@ -46,7 +47,7 @@ class _MedicineInputState extends State<MedicineInput> {
         patientNameController.clear();
         machineIDController.clear();
         medicineNameController.clear();
-        startTimeController.clear();
+        nextIntakeTimeController.clear();
         intakeIntervalController.clear();
         intakeTimesController.clear();
         isChecked = false;
@@ -100,7 +101,7 @@ class _MedicineInputState extends State<MedicineInput> {
               ),
               const SizedBox(height: 16.0),
               TextFormField(
-                controller: startTimeController,
+                controller: nextIntakeTimeController,
                 decoration: const InputDecoration(
                   labelText: 'Start Time',
                   filled: true,
@@ -132,7 +133,7 @@ class _MedicineInputState extends State<MedicineInput> {
                   if (time != null) {
                     setState(() {
                       selectedTime = time;
-                      startTimeController.text = time.format(context);
+                      nextIntakeTimeController.text = time.format(context);
                     });
                   }
                 },
