@@ -65,7 +65,9 @@ app.listen(PORT, () => {
 
 app.post("/ipaddr", (req, res) => {
 	const xForwardedFor = req.headers["x-forwarded-for"];
-	const ipAddr = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.socket.remoteAddress;
+	const ipAddr = xForwardedFor
+		? xForwardedFor.split(",")[0].trim()
+		: req.socket.remoteAddress;
 
 	const machineID = req.body.machineID;
 
@@ -79,14 +81,15 @@ app.post("/ipaddr", (req, res) => {
 // Post request from Arduino, when pills are successfully dispensed.
 app.post("/test", (req, res) => {
 	const xForwardedFor = req.headers["x-forwarded-for"];
-	const ipAddr = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.socket.remoteAddress;
+	const ipAddr = xForwardedFor
+		? xForwardedFor.split(",")[0].trim()
+		: req.socket.remoteAddress;
 	console.log(
 		"Received POST request from Arduino: from " +
 			ipAddr +
 			" with body: " +
 			JSON.stringify(req.body)
 	);
-	console.log(req.body);
 	const json = req.body;
 	console.log(json);
 	// Get the decimal IP address
@@ -106,7 +109,6 @@ setInterval(async () => {
 	//Get updated database
 	const snapshot = await db.collection("medicine-prescription").get();
 	const currentTime = Date.now();
-	// console.log(currentTime);
 
 	snapshot.forEach(async (doc) => {
 		const prescription = doc.data();
@@ -152,7 +154,9 @@ setInterval(async () => {
 				// console.log("NextIntakeTime " + nextIntakesss);
 
 				// Update IntakeTimes
-				prescription.intakeTimes;
+				console.log("Previous intake times: " + prescription.intakeTimes);
+				newIntakeTimes = prescription.intakeTimes - 1;
+				decrementIntakeTimes(newIntakeTimes, doc.id);
 			}
 		}
 	});
@@ -182,7 +186,30 @@ function changeTime(timestamp, uniqueId) {
 	docRef
 		.update({ nextIntakeTime: timestamp })
 		.then(() => {
-			console.log("Timestamp field updated successfully");
+			console.log(
+				"Timestamp field updated successfully to " +
+					new Date(timestamp.toMillis()) +
+					""
+			);
+		})
+		.catch((error) => {
+			console.error("Error updating timestamp field:", error);
+		});
+}
+
+function decrementIntakeTimes(number, uniqueId) {
+	const db = admin.firestore();
+
+	// Get a reference to the document using the unique ID
+	const docRef = db.collection("medicine-prescription").doc(uniqueId);
+
+	// Update the timestamp field with the provided timestamp value
+	docRef
+		.update({ intakeTimes: number })
+		.then(() => {
+			console.log(
+				"Intake Times field updated successfully to " + number + " times"
+			);
 		})
 		.catch((error) => {
 			console.error("Error updating timestamp field:", error);
