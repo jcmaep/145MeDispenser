@@ -1,5 +1,5 @@
 const express = require("express");
-// const SerialPort = require('serialport');
+const SerialPort = require('serialport');
 // const arduinoUrl = 'http://192.168.5.2/arduino';
 
 // initialize firebase admin sdk
