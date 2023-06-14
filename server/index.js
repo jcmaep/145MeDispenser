@@ -79,87 +79,94 @@ app.listen(PORT, () => {
 // });
 
 // Post request from Arduino, when pills are successfully dispensed.
-// app.post("/test", (req, res) => {
-// 	const xForwardedFor = req.headers["x-forwarded-for"];
-// 	const ipAddr = xForwardedFor
-// 		? xForwardedFor.split(",")[0].trim()
-// 		: req.socket.remoteAddress;
-// 	console.log(
-// 		"Received POST request from Arduino: from " +
-// 			ipAddr +
-// 			" with body: " +
-// 			JSON.stringify(req.body)
-// 	);
-// 	const json = req.body;
-// 	console.log(json);
-// 	// Get the decimal IP address
-// 	//let machineID = json.MachineID;
-// 	const json_response = "dispense",
-// ;
+app.post("/test", (req, res) => {
+	const xForwardedFor = req.headers["x-forwarded-for"];
+	const ipAddr = xForwardedFor
+		? xForwardedFor.split(",")[0].trim()
+		: req.socket.remoteAddress;
+	console.log(
+		"Received POST request from Arduino: from " +
+			ipAddr +
+			" with body: " +
+			JSON.stringify(req.body)
+	);
+	const json = req.body;
+	console.log(json);
+	// Get the decimal IP address
+	//let machineID = json.MachineID;
+	const json_response = "dispense";
+;
 
-// 	console.log(json_response);
-// 	//console.log(`Input received: ${machineID}`);
-// 	res.send(req.body);
-// });
+	console.log(json_response);
+	//console.log(`Input received: ${machineID}`);
+	res.send(req.body);
+});
 
 // Loop to check database data, then send dispensing signal to Arduino if timestamp is == current time
 setInterval(async () => {
-	//Get updated database
-	const snapshot = await db.collection("medicine-prescription").get();
-	const currentTime = Date.now();
+	try {
+		// Get updated database
+		const snapshot = await db.collection("medicine-prescription").get();
+		const currentTime = Date.now();
 
-	snapshot.forEach(async (doc) => {
-		const prescription = doc.data();
-		const nextIntakeTimeMillis = prescription.nextIntakeTime.toMillis();
+		snapshot.forEach(async (doc) => {
+			try {
+				const prescription = doc.data();
+				const nextIntakeTimeMillis = prescription.nextIntakeTime.toMillis();
 
-		if (currentTime >= nextIntakeTimeMillis) {
-			if (prescription.intakeTimes === 0) {
-				// continue;
-			} else {
-				const lastIntakeTime = prescription.nextIntakeTime.toMillis();
-				console.log("Last intake: " + Date(lastIntakeTime));
-				console.log("Interval: " + prescription.intakeInterval * 3600000);
-				const newDateMillis =
-					lastIntakeTime + prescription.intakeInterval * 3600000;
-				// console.log("Next intake: " + newDateMillis);
-				// console.log(prescription.nextIntakeTime);
-
-				changeTime(admin.firestore.Timestamp.fromMillis(newDateMillis), doc.id);
-				// Arduino dispenses - START
-				// Assuming arduino sensed a hand
-				const arduinoCommand = {
-					command: "dispense",
-					machineID: prescription.machineID,
-				};
-				// Convert the arduinoCommand object to JSON string
-				const commandString = JSON.stringify(arduinoCommand);
-
-				// Send the command to the Arduino using SerialPort
-				const port = new SerialPort("COM1", { baudRate: 9600 }); // Hardcorded, replace "COM1" with the appropriate port name
-				port.write(commandString, (err) => {
-					if (err) {
-						console.error("Error writing to serial port:", err);
+				if (currentTime >= nextIntakeTimeMillis) {
+					if (prescription.intakeTimes === 0) {
+						// continue;
 					} else {
-						console.log("Dispensing signal sent to Arduino.");
+						const lastIntakeTime = prescription.nextIntakeTime.toMillis();
+						console.log("Last intake: " + Date(lastIntakeTime));
+						console.log("Interval: " + prescription.intakeInterval * 3600000);
+						const newDateMillis =
+							lastIntakeTime + prescription.intakeInterval * 3600000;
+						// console.log("Next intake: " + newDateMillis);
+						// console.log(prescription.nextIntakeTime);
+
+						changeTime(admin.firestore.Timestamp.fromMillis(newDateMillis), doc.id);
+						// Arduino dispenses - START
+						// Assuming arduino sensed a hand
+						const arduinoCommand = {
+							command: "dispense",
+							machineID: prescription.machineID,
+						};
+						// Convert the arduinoCommand object to JSON string
+						const commandString = JSON.stringify(arduinoCommand);
+
+						// Send the command to the Arduino using SerialPort
+						const port = new SerialPort("COM1", { baudRate: 9600 }); // Hardcorded, replace "COM1" with the appropriate port name
+						port.write(commandString, (err) => {
+							if (err) {
+								console.error("Error writing to serial port:", err);
+							} else {
+								console.log("Dispensing signal sent to Arduino.");
+							}
+
+							// Close the serial port
+							port.close();
+						});
+						// Arduino dispenses - END
+
+						console.log("LastIntakeTime " + lastIntakeTime + "\n" + "Interval Time: " + prescription.intakeInterval * 3600000);
+						console.log("NextIntakeTime " + nextIntakeTimeMillis);
+
+						// Update IntakeTimes
+						console.log("Previous intake times: " + prescription.intakeTimes);
+						const newIntakeTimes = prescription.intakeTimes - 1;
+						await decrementIntakeTimes(newIntakeTimes, doc.id);
 					}
-
-					// Close the serial port
-					port.close();
-				});
-				// Arduino dispenses - END
-
-				console.log("LastIntakeTime " + lastIntakeTime + "\n" + "Interval Time: " + prescription.intakeInterval * 3600000)
-				console.log("NextIntakeTime " + nextIntakesss);
-
-				// Update IntakeTimes
-				console.log("Previous intake times: " + prescription.intakeTimes);
-				newIntakeTimes = prescription.intakeTimes - 1;
-				decrementIntakeTimes(newIntakeTimes, doc.id);
+				}
+			} catch (error) {
+				console.error("Error processing prescription:", error);
 			}
-		}
-	});
+		});
+	} catch (error) {
+		console.error("Error fetching prescriptions:", error);
+	}
 }, 1000);
-
 // Timestamp mechanism, push notification if missed
 
 function decimalToOctet(decimalIP) {
