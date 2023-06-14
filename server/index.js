@@ -64,9 +64,8 @@ app.listen(PORT, () => {
 });
 
 app.post("/ipaddr", (req, res) => {
-	const ipAddr = req.headers["x-forwarded-for"]; //|| // For typical proxy setups
-	// req.headers["x-real-ip"] || // For Nginx proxy setup
-	// req.socket.remoteAddress; // Fallback to remote address
+	const xForwardedFor = req.headers["x-forwarded-for"];
+	const ipAddr = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.socket.remoteAddress;
 
 	const machineID = req.body.machineID;
 
@@ -79,24 +78,25 @@ app.post("/ipaddr", (req, res) => {
 
 // Post request from Arduino, when pills are successfully dispensed.
 app.post("/test", (req, res) => {
+	const xForwardedFor = req.headers["x-forwarded-for"];
+	const ipAddr = xForwardedFor ? xForwardedFor.split(",")[0].trim() : req.socket.remoteAddress;
 	console.log(
 		"Received POST request from Arduino: from " +
-			req.headers["x-forwarded-for"] +
+			ipAddr +
 			" with body: " +
 			JSON.stringify(req.body)
 	);
 	console.log(req.body);
-	let json = req.body;
+	const json = req.body;
 	console.log(json);
 	// Get the decimal IP address
 	//let machineID = json.MachineID;
-	let json_response = {
+	const json_response = {
 		command: "dispense",
-		message: req.headers["x-forwarded-for"].slice(5),
+		message: ipAddr,
 	};
 
 	console.log(json_response);
-	console.log(req.headers["x-forwarded-for"]);
 	//console.log(`Input received: ${machineID}`);
 	res.send(req.body);
 });
