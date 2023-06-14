@@ -63,46 +63,44 @@ app.listen(PORT, () => {
 	console.log(`Server is listening on port ${PORT}`);
 });
 
-app.post("/ipaddr", (req, res) => {
-	const xForwardedFor = req.headers["x-forwarded-for"];
-	const ipAddr = xForwardedFor
-		? xForwardedFor.split(",")[0].trim()
-		: req.socket.remoteAddress;
+// app.post("/ipaddr", (req, res) => {
+// 	const xForwardedFor = req.headers["x-forwarded-for"];
+// 	const ipAddr = xForwardedFor
+// 		? xForwardedFor.split(",")[0].trim()
+// 		: req.socket.remoteAddress;
 
-	const machineID = req.body.machineID;
+// 	const machineID = req.body.machineID;
 
-	console.log("IP address of machine: " + ipAddr);
-	console.log("Machine ID: " + machineID);
+// 	console.log("IP address of machine: " + ipAddr);
+// 	console.log("Machine ID: " + machineID);
 
-	ipDict[machineID] = ipAddr;
-	console.log(ipDict);
-});
+// 	ipDict[machineID] = ipAddr;
+// 	console.log(ipDict);
+// });
 
 // Post request from Arduino, when pills are successfully dispensed.
-app.post("/test", (req, res) => {
-	const xForwardedFor = req.headers["x-forwarded-for"];
-	const ipAddr = xForwardedFor
-		? xForwardedFor.split(",")[0].trim()
-		: req.socket.remoteAddress;
-	console.log(
-		"Received POST request from Arduino: from " +
-			ipAddr +
-			" with body: " +
-			JSON.stringify(req.body)
-	);
-	const json = req.body;
-	console.log(json);
-	// Get the decimal IP address
-	//let machineID = json.MachineID;
-	const json_response = {
-		command: "dispense",
-		message: ipAddr,
-	};
+// app.post("/test", (req, res) => {
+// 	const xForwardedFor = req.headers["x-forwarded-for"];
+// 	const ipAddr = xForwardedFor
+// 		? xForwardedFor.split(",")[0].trim()
+// 		: req.socket.remoteAddress;
+// 	console.log(
+// 		"Received POST request from Arduino: from " +
+// 			ipAddr +
+// 			" with body: " +
+// 			JSON.stringify(req.body)
+// 	);
+// 	const json = req.body;
+// 	console.log(json);
+// 	// Get the decimal IP address
+// 	//let machineID = json.MachineID;
+// 	const json_response = "dispense",
+// ;
 
-	console.log(json_response);
-	//console.log(`Input received: ${machineID}`);
-	res.send(req.body);
-});
+// 	console.log(json_response);
+// 	//console.log(`Input received: ${machineID}`);
+// 	res.send(req.body);
+// });
 
 // Loop to check database data, then send dispensing signal to Arduino if timestamp is == current time
 setInterval(async () => {
@@ -137,7 +135,7 @@ setInterval(async () => {
 				const commandString = JSON.stringify(arduinoCommand);
 
 				// Send the command to the Arduino using SerialPort
-				const port = new SerialPort("COM1", { baudRate: 9600 }); // Replace "COM1" with the appropriate port name
+				const port = new SerialPort("COM1", { baudRate: 9600 }); // Hardcorded, replace "COM1" with the appropriate port name
 				port.write(commandString, (err) => {
 					if (err) {
 						console.error("Error writing to serial port:", err);
