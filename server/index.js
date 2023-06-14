@@ -64,12 +64,15 @@ app.listen(PORT, () => {
 });
 
 app.post("/ipaddr", (req, res) => {
-	ipAddr = req.ip[7];
-	machineID = req.body.machineID;
-	console.log(ipAddr)
-	console.log(req.ip)
-	console.log("IP address of machine: " + req.ip[7]);
-	console.log("Machine ID: " + req.body.machineID);
+	const ipAddr =
+		req.headers["x-forwarded-for"] || // For typical proxy setups
+		req.headers["x-real-ip"] || // For Nginx proxy setup
+		req.socket.remoteAddress; // Fallback to remote address
+
+	const machineID = req.body.machineID;
+
+	console.log("IP address of machine: " + ipAddr);
+	console.log("Machine ID: " + machineID);
 
 	ipDict[machineID] = ipAddr;
 	console.log(ipDict);
