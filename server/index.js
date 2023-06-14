@@ -64,10 +64,9 @@ app.listen(PORT, () => {
 });
 
 app.post("/ipaddr", (req, res) => {
-	const ipAddr =
-		req.headers["x-forwarded-for"] || // For typical proxy setups
-		req.headers["x-real-ip"] || // For Nginx proxy setup
-		req.socket.remoteAddress; // Fallback to remote address
+	const ipAddr = req.headers["x-forwarded-for"]; //|| // For typical proxy setups
+	// req.headers["x-real-ip"] || // For Nginx proxy setup
+	// req.socket.remoteAddress; // Fallback to remote address
 
 	const machineID = req.body.machineID;
 
@@ -82,7 +81,7 @@ app.post("/ipaddr", (req, res) => {
 app.post("/test", (req, res) => {
 	console.log(
 		"Received POST request from Arduino: from " +
-			req.ip[7] +
+			req.headers["x-forwarded-for"] +
 			" with body: " +
 			JSON.stringify(req.body)
 	);
@@ -93,11 +92,11 @@ app.post("/test", (req, res) => {
 	//let machineID = json.MachineID;
 	let json_response = {
 		command: "dispense",
-		message: req.ip.slice(5),
+		message: req.headers["x-forwarded-for"].slice(5),
 	};
 
 	console.log(json_response);
-	console.log(req.ip);
+	console.log(req.headers["x-forwarded-for"]);
 	//console.log(`Input received: ${machineID}`);
 	res.send(req.body);
 });
@@ -189,3 +188,9 @@ function changeTime(timestamp, uniqueId) {
 			console.error("Error updating timestamp field:", error);
 		});
 }
+
+// Powershell command
+// $headers = @{ "Content-Type" = "application/json" }
+// $body = @{ "machineID" = "123456" } | ConvertTo-Json
+
+// Invoke-RestMethod -Method POST -Uri "https://medispenser.onrender.com/ipaddr" -Headers $headers -Body $body
