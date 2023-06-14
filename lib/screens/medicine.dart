@@ -1,65 +1,53 @@
-// import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:http/http.dart' as http;
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class MedicineInput extends StatefulWidget {
+  const MedicineInput({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MedicineInput> createState() => _MedicineInputState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MedicineInputState extends State<MedicineInput> {
+  final TextEditingController patientNameController = TextEditingController();
   final TextEditingController machineIDController = TextEditingController();
-  final TextEditingController prescriptionNameController =
+  final TextEditingController medicineNameController = TextEditingController();
+  final TextEditingController nextIntakeTimeController =
       TextEditingController();
   final TextEditingController intakeIntervalController =
       TextEditingController();
   final TextEditingController intakeTimesController = TextEditingController();
   bool isChecked = false;
 
-  Future<void> postdata() async {
-    //String jsonBody = json.encode(body);
-    //final encoding = Encoding.getByName('utf-8');
-    // var ts = Date.now();
-
-    // var response = await http.post(
-    //   Uri.parse('https://webhook.site/1034d8ed-5524-4171-a678-83b14e172fa8'),
-    //   //Uri.parse("http://10.60.224.245:3000/"),
-    //   headers: {'Content-Type': 'application/json'},
-    //   body: json.encode({
-    //     'machineID': machineIDController.text,
-    //     'prescriptionName': prescriptionNameController.text,
-    //     'intakeInterval': intakeIntervalController.text,
-    //     'intakeTimes': intakeTimesController.text,
-    //   }),
-    //   //encoding: encoding,
-    // );
-    // print(response.statusCode);
-    // print(response.body);
-  }
+  TimeOfDay? selectedTime;
 
   void _confirmButtonPressed() {
     if (isChecked == true) {
-      final machineID = machineIDController.text;
-      final prescriptionName = prescriptionNameController.text;
-      final intakeInterval = intakeIntervalController.text;
-      final intakeTimes = intakeTimesController.text;
+      final patientName = patientNameController.text;
+      int intMachineID = int.parse(machineIDController.text);
+      final medicineName = medicineNameController.text;
+      int intIntakeInterval = int.parse(intakeIntervalController.text);
+      int intIntakeTimes = int.parse(intakeTimesController.text);
+      DateTime now = DateTime.now();
+      DateTime time = DateTime(now.year, now.month, now.day, selectedTime!.hour,
+          selectedTime!.minute);
+      Timestamp timestamp = Timestamp.fromDate(time);
 
       // Store the data in Firebase
       FirebaseFirestore.instance.collection('medicine-prescription').add({
-        'machineID': machineID,
-        'prescriptionName': prescriptionName,
-        'intakeInterval': intakeInterval,
-        'intakeTimes': intakeTimes,
+        'patientName': patientName,
+        'machineID': intMachineID,
+        'medicineName': medicineName,
+        'nextIntakeTime': timestamp,
+        'intakeInterval': intIntakeInterval,
+        'intakeTimes': intIntakeTimes,
       });
 
-      postdata();
-
       setState(() {
+        patientNameController.clear();
         machineIDController.clear();
-        prescriptionNameController.clear();
+        medicineNameController.clear();
+        nextIntakeTimeController.clear();
         intakeIntervalController.clear();
         intakeTimesController.clear();
         isChecked = false;
@@ -85,6 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextFormField(
+                controller: patientNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Patient Name',
+                  filled: true,
+                  fillColor: Color(0xFFD9D9D9),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                keyboardType: TextInputType.number,
                 controller: machineIDController,
                 decoration: const InputDecoration(
                   labelText: 'Machine ID',
@@ -94,15 +92,55 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 16.0),
               TextFormField(
-                controller: prescriptionNameController,
+                controller: medicineNameController,
                 decoration: const InputDecoration(
-                  labelText: 'Prescription Name',
+                  labelText: 'Medicine Name',
                   filled: true,
                   fillColor: Color(0xFFD9D9D9),
                 ),
               ),
               const SizedBox(height: 16.0),
               TextFormField(
+                controller: nextIntakeTimeController,
+                decoration: const InputDecoration(
+                  labelText: 'Start Time',
+                  filled: true,
+                  fillColor: Color(0xFFD9D9D9),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  final TimeOfDay? time = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime ?? TimeOfDay.now(),
+                    initialEntryMode: TimePickerEntryMode.dial,
+                    builder: (BuildContext context, Widget? child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
+                        ),
+                        child: Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: MediaQuery(
+                            data: MediaQuery.of(context).copyWith(
+                              alwaysUse24HourFormat: false,
+                            ),
+                            child: child!,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                  if (time != null) {
+                    setState(() {
+                      selectedTime = time;
+                      nextIntakeTimeController.text = time.format(context);
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                keyboardType: TextInputType.number,
                 controller: intakeIntervalController,
                 decoration: const InputDecoration(
                   labelText: 'Intake Interval',
@@ -112,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 16.0),
               TextFormField(
+                keyboardType: TextInputType.number,
                 controller: intakeTimesController,
                 decoration: const InputDecoration(
                   labelText: 'Intake Times',
